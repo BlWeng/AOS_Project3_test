@@ -4,6 +4,7 @@ import java.util.*;
 public class main {
     public static void main(String[] args) {
 
+	aaaaa
 
         Vector quorum = new Vector();
         quorum.add(0 , "1 2 4");
