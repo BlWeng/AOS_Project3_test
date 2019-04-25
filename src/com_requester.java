@@ -44,10 +44,12 @@ public class com_requester {
             Enumeration enu_qs = this.quorum_set_inReq.keys();
 
             while(enu_qs.hasMoreElements()){
-                if(!this.rv.getAct_selected().equals(request_message.action_options.enter_cs))
-                    this.node.setNm_msg_sent();
-                String temp = enu_qs.nextElement().toString();
-                try {
+                //if(!this.rv.getAct_selected().equals(request_message.action_options.enter_cs))
+                //    this.node.setNm_msg_sent();
+                //String temp = enu_qs.nextElement().toString();
+                char temp = enu_qs.nextElement().toString().charAt(0);
+                if (temp != this.node.getNid()) {
+                    try {
 /*
                     String server_id;
                     if(temp == "0")
@@ -63,21 +65,22 @@ public class com_requester {
                     com_port = new Socket(server_id, 5000+Integer.parseInt(temp));
 */
 
-                    com_port = new Socket(InetAddress.getLocalHost(), 5000 + Integer.parseInt(temp));
+                        com_port = new Socket(InetAddress.getLocalHost(), 5000 + (int) temp);
 
-                    this.rv.setReceiver(Integer.parseInt(temp));
-                    //System.out.println("Client handler back!!!!!");
-                    ObjectOutputStream oos = new ObjectOutputStream(com_port.getOutputStream());
-                    ObjectInputStream ois = new ObjectInputStream(com_port.getInputStream());
+                        this.rv.setReceiver(temp);
+                        //System.out.println("Client handler back!!!!!");
+                        ObjectOutputStream oos = new ObjectOutputStream(com_port.getOutputStream());
+                        ObjectInputStream ois = new ObjectInputStream(com_port.getInputStream());
 
-                    oos.writeObject(this.rv);
+                        oos.writeObject(this.rv);
 
 
-                    //System.out.println("Server " + temp + " established at client ");
+                        //System.out.println("Server " + temp + " established at client ");
 
-                } catch (Exception e) {
-                    System.out.println("Port of Node " + temp + " is not ready.");
-                    e.printStackTrace();
+                    } catch (Exception e) {
+                        System.out.println("Port of Node " + temp + " is not ready.");
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -88,7 +91,7 @@ public class com_requester {
             this.node.setNm_msg_sent();
             try {
                 System.out.println("Sender: " + this.rv.getSender() + " Receiver: " + this.rv.getReceiver());
-                com_port = new Socket(InetAddress.getLocalHost(), 5000 + this.rv.getReceiver());
+                com_port = new Socket(InetAddress.getLocalHost(), 5000 + (int)this.rv.getReceiver());
                 //com_port = new Socket(InetAddress.getLocalHost(), 5000 + this.rv.getNode_number());
 
 /*
@@ -119,54 +122,6 @@ public class com_requester {
                 System.out.println("Port of Node " + this.rv.getSender() + " is not ready.");
             }
         }
-
-
-        if (this.rv.getCalling_action() == request_message.calling_option.shut_down) {
-
-            int i=0;
-            while(i<13){
-                this.node.setNm_msg_sent();
-                try {
-/*
-                    String server_id;
-                    if(i == 0)
-                        server_id = "dc13.utdallas.edu";
-                    else {
-                        server_id = "dc0" + i + ".utdallas.edu";
-                        if (this.node.getNid() < 10)
-                            server_id = "dc0" + i + ".utdallas.edu";
-                        else
-                            server_id = "dc" + i + ".utdallas.edu";
-
-                    }
-                    com_port = new Socket(server_id, 5000+i);
-
-*/
-                    //String temp = "dc0"+i+".utdallas.edu";
-                    //com_port = new Socket(temp, 5000+i);
-                    //InetAddress ip = InetAddress.getByName("localhost");
-                    //com_port = new Socket(10.176.69.31+i , 5000 + i);
-                    com_port = new Socket(InetAddress.getLocalHost(), 5000 + i);
-
-                    this.rv.setReceiver(i);
-                    //System.out.println("Client handler back!!!!!");
-                    ObjectOutputStream oos = new ObjectOutputStream(com_port.getOutputStream());
-                    ObjectInputStream ois = new ObjectInputStream(com_port.getInputStream());
-
-                    oos.writeObject(this.rv);
-
-
-                    //System.out.println("Server " + temp + " established at client ");
-
-                } catch (Exception e) {
-                    System.out.println("Port of Node " + i + " is not ready.");
-                    e.printStackTrace();
-                }
-                i++;
-            }
-
-        }
-
 
 
 

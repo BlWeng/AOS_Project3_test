@@ -1,43 +1,17 @@
 import java.io.*;
 import java.util.*;
 
-/////////test for github
-
 public class main {
     public static void main(String[] args) {
-
-
-        Vector quorum = new Vector();
-        quorum.add(0 , "1 2 4");
-        quorum.add(1 , "1 2 5");
-        quorum.add(2 , "1 3 6");
-        quorum.add(3 , "1 3 7");
-        quorum.add(4 , "2 4 3 6");
-        quorum.add(5 , "2 4 3 7");
-        quorum.add(6 , "2 5 3 6");
-        quorum.add(7 , "2 5 3 7");
-        quorum.add(8 , "1 4 5");
-        quorum.add(9 , "1 6 7");
-        quorum.add(10 , "4 5 3 6");
-        quorum.add(11 , "4 5 3 7");
-        quorum.add(12 , "2 4 6 7");
-        quorum.add(13 , "2 5 6 7");
-        quorum.add(14 , "4 5 6 7");
-
 
         boolean cnt = true;
 
         System.out.println("Node Number?");
+
         Scanner cn = new Scanner(System.in).useDelimiter("\\s");
-        //Node node = new Node(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
-        Node node = new Node(cn.nextInt());
-        //node.connection();
-/*
-        System.out.println("Would you like apply mutual algorithm?");
-        Scanner cn_m = new Scanner(System.in).useDelimiter("\\s");
-        if(cn_m.next().equals("y")) node.setMutual_exclusion(true);
-        else node.setMutual_exclusion(false);
-*/
+
+        Node node = new Node(cn.next().charAt(0));
+
         node.setMutual_exclusion(false);
         try {
 
@@ -45,27 +19,7 @@ public class main {
 
             server.start();
 
-
-            while (cnt && node.getNid() <8 ) {
-
-                try {
-
-
-                    if(node.getNid()!=0) {
-
-                        System.out.print("Node of " + node.getNid() + ", number of message sent: " + node.getNm_msg_sent() + "\t");
-                        System.out.print("Node of " + node.getNid() + ", number of message received: " + node.getNm_msg_received() + "\r");
-
-                    }
-
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-
-                }
-
-
-                while (cnt && node.getNid() >= 8) {
+                while (cnt) {
                     try {
 
                         System.out.println("Would you like to make request? (y/n)");
@@ -76,12 +30,44 @@ public class main {
                             int iteration = 0;
                             node.setIteration(iteration);
                             int target_set;
+
+/*
                             String set[];
                             Hashtable<String, Boolean> quorum_set ;
                             node.resetNm_msg_sent();
                             node.resetsetNm_msg_received();
+*/
 
+                            System.out.println("Please enter desire level for partition testing. (0-3)");
+                            Scanner p_cmd = new Scanner(System.in).useDelimiter("\\s");
 
+                            iteration = p_cmd.nextInt();
+
+                            String selected_set = partition_selected(node, iteration);
+
+                            ArrayList<Character> connection_set = new ArrayList<>();
+
+                            if(selected_set.equals("self"))
+                                connection_set.add(node.getNid());
+                            else
+                                for(char it:selected_set.toCharArray())
+                                    connection_set.add(it);
+
+                            System.out.println("Selected iteration: " +iteration);
+                            System.out.println("Selected partition: " + connection_set.toString());
+
+                            Hashtable quorum_set = new Hashtable();
+                            for (char t_in : connection_set)
+                                quorum_set.put(t_in, false);
+
+                            request_message req_msg = new request_message(node.getNid(), ' ', node.getLogical_time(), iteration,
+                                    request_message.action_options.request, request_message.calling_option.broadcast_clique);
+
+                            com_requester req_begin = new com_requester(req_msg, quorum_set, node);
+
+                            req_begin.send();
+
+/*
                             while(node.getIteration()<20 ) {
                                 long start= System.nanoTime();
                                 int temp_msg_nm = node.getNm_msg_sent()+node.getNm_msg_received();
@@ -135,7 +121,7 @@ public class main {
 
                         //System.out.println("Size of Buffer: " + node.getBuffer().size());
 
-
+    */
                     }
                     else {
                         System.out.println("Goodbye!!!");
@@ -185,12 +171,9 @@ public class main {
     public static void critical_section(Node node, long start, int temp_msg_nm) throws Exception{
         while (node.getCs_permission()){
             node.setChecker(false);
-            if( !node.getRequest_act_finished() && node.getNid() < 6){
-                //System.out.println("Enter Critical Section!!!!!!!!!!!");
-                node.setCs_permission(false);
-            }
 
-            else if ( !node.getRequest_act_finished() && node.getNid() >= 6) {
+            if ( !node.getRequest_act_finished() ) {
+                //System.out.println("Enter Critical Section!!!!!!!!!!!");
                 long elapsed_time = System.nanoTime()-start;
                 int total_msg_nm = node.getNm_msg_sent()+node.getNm_msg_received()-temp_msg_nm;
                 //System.out.println("In critical section of Critical Section.");
@@ -205,11 +188,12 @@ public class main {
     public static void release_resource(Node node,int iteration, Hashtable for_release){
 
             //System.out.println("Releasing Def.");
+    /*
             request_message release_msg = new request_message(node.getNid(),-1,node.getLogical_time(), iteration,
                     request_message.action_options.release, request_message.calling_option.broadcast_clique);
             com_requester release = new com_requester(release_msg, for_release, node);
             release.send();
-
+    */
     }
 
 
@@ -332,27 +316,28 @@ public class main {
         String target= "";
         switch(iteration){
             case 0:
-                target = "A B C D E F G H";
+                target = "ABCDEFGH";
                 break;
             case 1:
-                if(node.getNid().compareTo("D") <= 0)
-                   target = "A B C D";
+                if(node.getNid() - 'D' <= 0)
+                   target = "ABCD";
                 else
-                    target = "E F G H";
+                    target = "EFGH";
                 break;
             case 2:
-                if(node.getNid().equals("A") || node.getNid().equals("H"))
-                    target = "";
-                else if(node.getNid().compareTo("B")>=0 && node.getNid().compareTo("D")<=0)
-                    target = "B C D";
-                else if(node.getNid().compareTo("E")>=0 && node.getNid().compareTo("G")<=0)
-                    target = "E F G";
+                if(node.getNid()- 'A' == 0 || node.getNid() - 'H' ==0)
+                    target = "self";
+                else if(node.getNid() - 'B' >=0 && node.getNid() - 'D' <=0)
+                    target = "BCD";
+                else if(node.getNid() - 'E' >=0 && node.getNid() - 'G' <=0)
+                    target = "EFG";
                 break;
             case 3:
-                if(node.getNid().equals("A") || node.getNid().equals("H"))
-                    target = "";
-                else if(node.getNid().compareTo("B")>=0 && node.getNid().compareTo("G")<=0)
-                target = "B C D E F G";
+                if(node.getNid() == 'A'  || node.getNid() == 'H')
+                    target = "self";
+                else if(node.getNid() - 'B' >=0 && node.getNid() - 'G' <=0)
+                target = "BCDEFG";
+                break;
         }
 
         return target;

@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Node implements Serializable{
     //private int nid; // ID of Node
-    private String nid; // ID of Node
+    private char nid; // ID of Node
 
     private int logical_time;
 
@@ -57,7 +57,7 @@ public class Node implements Serializable{
     private boolean mutual_exclusion;
 
     // Constructor of Node
-    public Node(String nid) {
+    public Node(char nid) {
         this.nid = nid; // assign node ID
 
 
@@ -67,7 +67,7 @@ public class Node implements Serializable{
                 this.port = new ServerSocket(13 + 5000);
             else
 */
-                this.port = new ServerSocket(Integer.parseInt(this.nid) + 5000);
+                this.port = new ServerSocket( (int)this.nid + 5000);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,7 +92,7 @@ public class Node implements Serializable{
 
         this.request_act_finished = false;
 
-        this.previous_task = new request_message(0, 0, 0, 0,
+        this.previous_task = new request_message(' ', ' ', 0, 0,
                 request_message.action_options.initial, request_message.calling_option.broadcast_clique);
 
         this.cs_in_use = false;
@@ -105,7 +105,7 @@ public class Node implements Serializable{
 
 
     // Get Functions
-    public String getNid() { return nid;}
+    public char getNid() { return nid;}
 
     public int getLogical_time() {return logical_time;}
 
@@ -204,7 +204,7 @@ public class Node implements Serializable{
             @Override
             public int compare(request_message o1, request_message o2) {
                 if (o1.getReq_logical_time() == o2.getReq_logical_time())
-                    return o1.getSender()-o2.getSender();
+                    return o1.getSender() -  o2.getSender();
                 else
                     return o1.getReq_logical_time() - o2.getReq_logical_time();
             }

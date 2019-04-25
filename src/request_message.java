@@ -2,9 +2,9 @@ import java.io.Serializable;
 
 public class request_message implements Serializable {
 
-    private int sender;
+    private char sender;
 
-    private int receiver;
+    private char receiver;
 
     public enum action_options{
         request,
@@ -34,7 +34,7 @@ public class request_message implements Serializable {
 
     private boolean read_granted;
 
-    public request_message(int in_sender, int in_receiver, int in_req_time,
+    public request_message(char in_sender, char in_receiver, int in_req_time,
                            int in_iteration, action_options in_act_s, calling_option in_opt){
         this.sender = in_sender;
         this.receiver = in_receiver;
@@ -63,9 +63,9 @@ public class request_message implements Serializable {
 */
 
 
-    public int getSender() { return this.sender; }
+    public char getSender() { return this.sender; }
 
-    public int getReceiver() { return  this.receiver;}
+    public char getReceiver() { return  this.receiver;}
 
     public action_options getAct_selected() {return this.act_selected;}
 
@@ -78,7 +78,9 @@ public class request_message implements Serializable {
     public boolean getRead_granted() { return read_granted;}
 
 
-    public void setSender(int dv) {this.sender = dv;}
+    public void setSender(char dv) {this.sender = dv;}
+
+    public void setReceiver(char dv) {this.receiver=dv;}
 
     public void setAct_selected(action_options dv) {this.act_selected = dv;}
 
@@ -87,8 +89,6 @@ public class request_message implements Serializable {
     public void setCalling_action(calling_option dv) {this.calling_act = dv;}
 
     public void setIteration(int dv) {this.iteration = dv;}
-
-    public void setReceiver(int dv) {this.receiver=dv;}
 
     public void setRead_granted(boolean dv) {this.read_granted = dv;}
 
