@@ -2,6 +2,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -20,10 +21,12 @@ public class com_requester {
 
     static Vector<com_handler> server_list_client_end = new Vector<>();
 
-    private Hashtable quorum_set_inReq;
+    //private Hashtable quorum_set_inReq;
 
+    private ArrayList<Character> quorum_set_inReq;
 
-    public com_requester(request_message in_rv, Hashtable in_set, Node in_node)
+    //public com_requester(request_message in_rv, Hashtable in_set, Node in_node)
+    public com_requester(request_message in_rv, ArrayList in_set, Node in_node)
     {
         this.rv = new request_message(in_rv);
         this.quorum_set_inReq = in_set;
@@ -31,6 +34,7 @@ public class com_requester {
     }
 
     public com_requester(request_message in_rv, Node in_node)
+    //public com_requester(request_message in_rv)
     {
         this.rv = new request_message(in_rv);
         this.node = in_node;
@@ -41,13 +45,15 @@ public class com_requester {
 
         if (this.rv.getCalling_action() == request_message.calling_option.broadcast_clique) {
 
-            Enumeration enu_qs = this.quorum_set_inReq.keys();
+            //Enumeration enu_qs = this.quorum_set_inReq.keys();
 
-            while(enu_qs.hasMoreElements()){
+            //while(enu_qs.hasMoreElements()){
+            for( char pt : quorum_set_inReq){
                 //if(!this.rv.getAct_selected().equals(request_message.action_options.enter_cs))
                 //    this.node.setNm_msg_sent();
                 //String temp = enu_qs.nextElement().toString();
-                char temp = enu_qs.nextElement().toString().charAt(0);
+                //char temp = enu_qs.nextElement().toString().charAt(0);
+                char temp = pt;
                 if (temp != this.node.getNid()) {
                     try {
 /*

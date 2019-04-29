@@ -51,10 +51,10 @@ public class com_handler implements Runnable, Serializable {
             while (running.get()) {
 
                 //System.out.println("In handler, ID: " + Thread.currentThread().getId());
-                System.out.println("In server");
+                //System.out.println("In server");
                 request_message in = (request_message) ois.readObject();
-                //System.out.println("In ID: " + in.getSender() + " Host node: " + this.node.getNid());
-                //System.out.println("Action: " + in.getAct_selected() + " Calling option: " + in.getCalling_action());
+                System.out.println("In ID: " + in.getSender() + " Host node: " + this.node.getNid());
+                System.out.println("Action: " + in.getAct_selected() + " Calling option: " + in.getCalling_action());
                 //System.out.println("Iteration in handler: " + in.getIteration());
 
                 //this.node.setReceived_msg(in);
@@ -63,6 +63,7 @@ public class com_handler implements Runnable, Serializable {
                 request_message processing_msg = new request_message(in);
                 processing_msg.setReq_logical_time(this.node.getLogical_time());
 
+/*
                 this.node.setBuffer(processing_msg);
 
                 for (int i = 0; i < this.node.getBuffer().size(); i++) {
@@ -70,6 +71,38 @@ public class com_handler implements Runnable, Serializable {
                             + " Iteration: " + this.node.getBuffer().get(i).getIteration()
                             + " Action: " + this.node.getBuffer().get(i).getAct_selected());
                 }
+*/
+                if(in.getAct_selected().equals(request_message.action_options.VOTE_REQUEST)){
+                    request_message reply_msg =
+                            new request_message(node.getNid(), in.getSender(), node.getLogical_time(),
+                            node.getVN(), node.getSC(), node.getDS(),
+                            request_message.action_options.VOTE_REQUEST_REPLY, request_message.calling_option.single);
+
+                    com_requester reply = new com_requester(reply_msg, node);
+                    reply.send();
+
+                }
+
+                if(in.getAct_selected().equals(request_message.action_options.VOTE_REQUEST_REPLY)){
+                    this.node.setBuffer(in);
+                }
+
+                if(in.getAct_selected().equals(request_message.action_options.CATCH_UP)){
+                    this.node.setVN(in.getS_VN());
+                }
+
+                if(in.getAct_selected().equals(request_message.action_options.COMMIT)){
+                    this.node.setVN(in.getS_VN());
+                    this.node.setSC(in.getS_SC());
+                    this.node.getDS().clear();
+                    this.node.setDS(in.getS_DS());
+                }
+
+                if(in.getAct_selected().equals(request_message.action_options.ABORT)){
+                    // Release resource
+                }
+
+
 
 
             }

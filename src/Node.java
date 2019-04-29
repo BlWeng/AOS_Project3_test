@@ -56,6 +56,20 @@ public class Node implements Serializable{
 
     private boolean mutual_exclusion;
 
+    private int VN;
+
+    private int SC;
+
+    private ArrayList<Character> DS;
+
+    private int max;
+
+    private ArrayList<Character> P;
+
+    private ArrayList<Character> I;
+
+    private boolean isDistinguished;
+
     // Constructor of Node
     public Node(char nid) {
         this.nid = nid; // assign node ID
@@ -92,8 +106,8 @@ public class Node implements Serializable{
 
         this.request_act_finished = false;
 
-        this.previous_task = new request_message(' ', ' ', 0, 0,
-                request_message.action_options.initial, request_message.calling_option.broadcast_clique);
+        //this.previous_task = new request_message(' ', ' ', 0, 0,
+        //        request_message.action_options.initial, request_message.calling_option.broadcast_clique);
 
         this.cs_in_use = false;
 
@@ -157,6 +171,20 @@ public class Node implements Serializable{
 
     public boolean getMutual_exclusion() {return mutual_exclusion;}
 
+    public int getVN() {return VN;}
+
+    public int getSC() {return SC;}
+
+    public ArrayList<Character> getDS() {return DS;}
+
+    public int getMax() {return max;}
+
+    public ArrayList<Character> getP() {return P;}
+
+    public ArrayList<Character> getI() {return I;}
+
+    public boolean getIsDistinguished() {return isDistinguished;}
+
     // Set Functions
 
     public void setLogical_time_unit_increase() {logical_time++;}
@@ -203,10 +231,7 @@ public class Node implements Serializable{
         Collections.sort(buffer, new Comparator<request_message>() {
             @Override
             public int compare(request_message o1, request_message o2) {
-                if (o1.getReq_logical_time() == o2.getReq_logical_time())
                     return o1.getSender() -  o2.getSender();
-                else
-                    return o1.getReq_logical_time() - o2.getReq_logical_time();
             }
         });
 
@@ -266,5 +291,19 @@ public class Node implements Serializable{
     public void setReply(boolean dv) {reply = dv;}
 
     public void setMutual_exclusion(boolean dv) {mutual_exclusion = dv;}
+
+    public void setVN(int dv) { VN = dv;}
+
+    public void setSC(int dv) { SC = dv;}
+
+    public void setDS(ArrayList<Character> dv ) { DS = new ArrayList<>(dv);}
+
+    public void setMax(int dv) {max = dv;}
+
+    public void setP(ArrayList<Character> dv ) {P = new ArrayList<>(dv);}
+
+    public void setI(ArrayList<Character> dv ) {I = new ArrayList<>(dv);}
+
+    public void setIsDistinguished(boolean dv) {isDistinguished = dv;}
 }
 

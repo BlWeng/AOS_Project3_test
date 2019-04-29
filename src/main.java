@@ -1,4 +1,5 @@
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class main {
@@ -11,6 +12,10 @@ public class main {
         Scanner cn = new Scanner(System.in).useDelimiter("\\s");
 
         Node node = new Node(cn.next().charAt(0));
+
+        node.setVN(1);
+        node.setSC(8);
+        node.setDS(new ArrayList<>(List.of('A')));
 
         node.setMutual_exclusion(false);
         try {
@@ -38,6 +43,8 @@ public class main {
                             node.resetsetNm_msg_received();
 */
 
+// Test for partition in network
+
                             System.out.println("Please enter desire level for partition testing. (0-3)");
                             Scanner p_cmd = new Scanner(System.in).useDelimiter("\\s");
 
@@ -55,17 +62,47 @@ public class main {
 
                             System.out.println("Selected iteration: " +iteration);
                             System.out.println("Selected partition: " + connection_set.toString());
+// end of mimic in test
 
                             Hashtable quorum_set = new Hashtable();
                             for (char t_in : connection_set)
                                 quorum_set.put(t_in, false);
 
-                            request_message req_msg = new request_message(node.getNid(), ' ', node.getLogical_time(), iteration,
-                                    request_message.action_options.request, request_message.calling_option.broadcast_clique);
 
-                            com_requester req_begin = new com_requester(req_msg, quorum_set, node);
+                            //request_message req_msg = new request_message(node.getNid(), ' ', node.getLogical_time(), iteration,
+                            //        request_message.action_options.VOTE_REQUEST, request_message.calling_option.broadcast_clique);
+
+                            request_message req_msg = new request_message(node.getNid(), ' ', node.getLogical_time(),
+                                            node.getVN(), node.getSC(), node.getDS(),
+                                            request_message.action_options.VOTE_REQUEST, request_message.calling_option.broadcast_clique);
+
+                            //com_requester req_begin = new com_requester(req_msg, quorum_set, node);
+
+                            com_requester req_begin = new com_requester(req_msg, connection_set, node);
 
                             req_begin.send();
+
+                            while(node.getBuffer().size() != connection_set.size()-1)
+                                System.out.print("Waiting reply message(s)..." + " Size of Buffer; " + node.getBuffer().size() + "\r");
+                                //System.out.print("Waiting reply message(s)...\r");
+
+                            System.out.println("Escape from replying.");
+
+                            request_message self_msg = new request_message(node.getNid(), node.getNid(), node.getLogical_time(),
+                                    node.getVN(), node.getSC(), node.getDS(),
+                                    request_message.action_options.VOTE_REQUEST_REPLY, request_message.calling_option.broadcast_clique);
+                            node.setBuffer(self_msg);
+
+                            node.setIsDistinguished(false);
+
+                            Is_Distinguished(node, connection_set);
+
+                            if(node.getIsDistinguished()){
+                                Catch_up(node);
+                                Do_Updated(node, connection_set);
+                            }
+
+                            node.getBuffer().clear();
 
 /*
                             while(node.getIteration()<20 ) {
@@ -342,6 +379,160 @@ public class main {
 
         return target;
     }
+
+    public static void Is_Distinguished(Node node, ArrayList<Character> subordinates){
+        int max = node.getBuffer().get(0).getS_VN();
+        int card_I = 0;
+        int N = node.getBuffer().get(0).getS_SC();
+
+        for(int i = 1 ; i < node.getBuffer().size(); i++){
+            if ( node.getBuffer().get(i).getS_VN() > max)
+                max = node.getBuffer().get(i).getS_VN();
+                N = node.getBuffer().get(i).getS_SC();
+        }
+
+        node.setMax(max);
+        System.out.println("Result of max: " + max);
+        System.out.println("Result of N: " + N);
+
+        for(int j = 0 ; j < node.getBuffer().size(); j++){
+            if ( node.getBuffer().get(j).getS_VN() == max)
+                card_I++;
+        }
+
+        System.out.println("Result of card_I: " + card_I);
+
+        boolean found = false;
+
+        ArrayList<Character> P = new ArrayList<>();
+        for(int l = 0 ; l < node.getBuffer().size(); l++)
+            P.add(node.getBuffer().get(l).getSender());
+        node.setP(P);
+
+        Vector<request_message> I_complete = new Vector<>();
+        ArrayList<Character> I = new ArrayList<>();
+        for(int q = 0 ; q < node.getBuffer().size(); q++) {
+            if ( node.getBuffer().get(q).getS_VN() == max) {
+                I_complete.add(node.getBuffer().get(q));
+                I.add(node.getBuffer().get(q).getSender());
+            }
+        }
+
+        node.setI(I);
+
+        ArrayList<Character> temp = new ArrayList<>();
+
+        if( N == 3 ){
+            System.out.println("Pre-Distinguish partition in N == 3.");
+            found = false;
+            temp = new ArrayList<>(P);
+
+            for(int n = 0 ; n < node.getBuffer().size(); n++){
+                if ( node.getBuffer().get(n).getS_VN() == max)
+                temp.removeAll(node.getBuffer().get(n).getS_DS());
+            }
+
+            if(temp.isEmpty() || temp.size() > 1){
+                System.out.println("Distinguish partition in N == 3");
+                node.setIsDistinguished(true);
+                found = true;
+            }
+
+        }
+        if(!found) {
+            if (card_I > N / 2) {
+                System.out.println("Distinguish partition in > N/2.");
+                node.setIsDistinguished(true);
+            }
+
+            if (card_I == N / 2) {
+                System.out.println("Pre-Distinguish partition in == N/2.");
+                found = false;
+                temp = new ArrayList<>(I);
+
+                for (int k = 0; k < node.getBuffer().size(); k++) {
+                    if (node.getBuffer().get(k).getS_VN() == max)
+                        temp.removeAll(I_complete.get(k).getS_DS());
+                }
+
+                if (temp.isEmpty() || temp.size() != P.size()) {
+                    System.out.println("Distinguish partition in == N/2");
+                    node.setIsDistinguished(true);
+                }
+
+            }
+        }
+        else {
+            System.out.println("Not in Distinguished Partition. ");
+            node.setIsDistinguished(false);
+            request_message dis_abort_msg = new request_message(node.getNid(), ' ', node.getLogical_time(),
+                    node.getVN(), node.getSC(), node.getDS(),
+                    request_message.action_options.ABORT, request_message.calling_option.broadcast_clique);
+
+            com_requester dis_abort = new com_requester(dis_abort_msg, subordinates, node);
+
+            dis_abort.send();
+
+        }
+
+    }
+
+    public static void Catch_up(Node node){
+        for(int i= 0 ; i < node.getBuffer().size() ; i++){
+            if ( node.getBuffer().get(i).getS_VN() != node.getMax()){
+                request_message catchup_msg = new request_message(node.getNid(), node.getBuffer().get(i).getSender(), node.getLogical_time(),
+                        node.getVN(), node.getSC(), node.getDS(),
+                        request_message.action_options.CATCH_UP, request_message.calling_option.single);
+
+                com_requester catchup = new com_requester(catchup_msg, node);
+
+                catchup.send();
+            }
+
+        }
+
+        if(!node.getI().contains(node.getNid())) node.setVN(node.getMax());
+    }
+
+    public static void Do_Updated(Node node, ArrayList<Character> subordinates){
+
+        node.setVN(node.getVN()+1);
+        node.setSC(node.getBuffer().size());
+        node.getDS().clear();
+        if(node.getDS().size() == 3)
+            node.setDS(node.getP());
+        else
+            node.setDS( new ArrayList<>( List.of( node.getBuffer().get(0).getSender() ) ) );
+
+        request_message update_msg = new request_message(node.getNid(), ' ', node.getLogical_time(),
+                node.getVN(), node.getSC(), node.getDS(),
+                request_message.action_options.COMMIT, request_message.calling_option.broadcast_clique);
+
+        com_requester update = new com_requester(update_msg, subordinates, node);
+
+        update.send();
+
+    }
+
+    public static void Make_Current(Node node, ArrayList<Character> subordinates){
+        if(!node.getIsDistinguished()){
+            request_message abort_msg = new request_message(node.getNid(), ' ', node.getLogical_time(),
+                    node.getVN(), node.getSC(), node.getDS(),
+                    request_message.action_options.ABORT, request_message.calling_option.broadcast_clique);
+
+            com_requester abort = new com_requester(abort_msg, subordinates, node);
+
+            abort.send();
+        }
+
+        else{
+            if(node.getVN() != node.getMax()) node.setVN(node.getMax());
+            Do_Updated(node, subordinates);
+
+        }
+    }
+
+
 
 
 }
