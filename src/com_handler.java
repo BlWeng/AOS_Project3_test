@@ -10,19 +10,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //public class com_handler  implements Runnable {
 public class com_handler implements Runnable, Serializable {
 
+
     private int id;
     private Socket in_obj = null;
-
     private ObjectOutputStream oos = null;
     private ObjectInputStream ois = null;
-
     private Node node;
-
     private Thread worker;
     private final AtomicBoolean running = new AtomicBoolean(false);
     private int interval = 1000;
-
-
     public enum duty{
         server,
         client
@@ -44,35 +40,35 @@ public class com_handler implements Runnable, Serializable {
 
     @Override
     public void run() {
+
+        System.out.println("[*] COM_HANDLER thread is created, from " + in_obj.getInetAddress() + ".");
+
         try {
+
             running.set(true);
-            //System.out.println("Local IP " + this.in_obj.getLocalSocketAddress() + " Remote IP: " + this.in_obj.getRemoteSocketAddress());
 
             while (running.get()) {
 
-                //System.out.println("In handler, ID: " + Thread.currentThread().getId());
-                //System.out.println("In server");
                 request_message in = (request_message) ois.readObject();
-                System.out.println("In ID: " + in.getSender() + " Host node: " + this.node.getNid());
-                System.out.println("Action: " + in.getAct_selected() + " Calling option: " + in.getCalling_action());
-                //System.out.println("Iteration in handler: " + in.getIteration());
+                System.out.println(">> In ID: " + in.getSender() + " Host node: " + this.node.getNid());
+                System.out.println(">> Action: " + in.getAct_selected() + " Calling option: " + in.getCalling_action());
 
-                //this.node.setReceived_msg(in);
                 this.node.setLogical_time_assign_value_pls_one(in.getReq_logical_time());
 
                 request_message processing_msg = new request_message(in);
                 processing_msg.setReq_logical_time(this.node.getLogical_time());
 
-/*
-                this.node.setBuffer(processing_msg);
-
-                for (int i = 0; i < this.node.getBuffer().size(); i++) {
-                    System.out.println("Index: " + i + " ID: " + this.node.getBuffer().get(i).getSender()
-                            + " Iteration: " + this.node.getBuffer().get(i).getIteration()
-                            + " Action: " + this.node.getBuffer().get(i).getAct_selected());
-                }
-*/
+                // On receiving VOTE_REQUEST
                 if(in.getAct_selected().equals(request_message.action_options.VOTE_REQUEST)){
+
+                    // Wait to lock local manager
+                    while (true){
+                        if (node.getLock() == false){
+                            node.setLock(true);
+                            break;
+                        }
+                    }
+
                     request_message reply_msg =
                             new request_message(node.getNid(), in.getSender(), node.getLogical_time(),
                             node.getVN(), node.getSC(), node.getDS(),
@@ -80,42 +76,47 @@ public class com_handler implements Runnable, Serializable {
 
                     com_requester reply = new com_requester(reply_msg, node);
                     reply.send();
-
+                    System.out.println(">> Sent VOTE_REQUEST_REPLY to node: " + node.getNid());
                 }
 
+                // On receiving VOTE_REQUEST_REPLY
                 if(in.getAct_selected().equals(request_message.action_options.VOTE_REQUEST_REPLY)){
                     this.node.setBuffer(in);
                 }
 
-                if(in.getAct_selected().equals(request_message.action_options.CATCH_UP)){
-                    this.node.setVN(in.getS_VN());
+                // On receiving CATCH_UP_REPLY
+                if (in.getAct_selected().equals(request_message.action_options.CATCH_UP_REPLY)){
+
+                    node.setVN(in.getS_VN());
+                    node.setIsCurrent(true);
                 }
 
+                // On receiving CATCH_UP
+                if(in.getAct_selected().equals(request_message.action_options.CATCH_UP)){
+
+                    request_message reply_catchup_msg = new request_message(node.getNid(), in.getSender(), node.getLogical_time(),
+                            node.getVN(), node.getSC(), node.getDS(),
+                            request_message.action_options.CATCH_UP_REPLY, request_message.calling_option.single);
+                    com_requester reply_catchup_er = new com_requester(reply_catchup_msg, node);
+                    reply_catchup_er.send();
+                    System.out.println(">> Sent CATCH_UP_REPLY to node: " + node.getNid());
+                }
+
+                // On receiving COMMIT
                 if(in.getAct_selected().equals(request_message.action_options.COMMIT)){
                     this.node.setVN(in.getS_VN());
                     this.node.setSC(in.getS_SC());
-                    this.node.getDS().clear();
                     this.node.setDS(in.getS_DS());
+                    node.setLock(false);
+                    System.out.println(">> Updated variables: [VN: " + node.getVN() +" SC: " + node.getSC() + " DS: " + node.getDS() + "]");
                 }
 
+                // On receiving ABORT
                 if(in.getAct_selected().equals(request_message.action_options.ABORT)){
                     // Release resource
+                    this.node.setLock(false);
                 }
-
-
-
-
             }
-
         }catch(Exception e){}
-
     }
-
-
-
-
 }
-
-
-
-

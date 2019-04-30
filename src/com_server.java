@@ -6,35 +6,30 @@ import java.util.Vector;
 public class com_server implements Runnable{
 
     private Node node;
-
     com_handler msg_thread = null;
-
     Socket com_port = null;
-
     static Vector<com_handler> client_list_server_end = new Vector<>();
-
     private int client_id;
 
-    //public com_server( Node node, request_message in_rv)
+
     public com_server( Node node)
     {
         this.node = node;
-        //this.vb = new requirement(in_vb);
-        //this.rv = new request_message(in_rv);
     }
 
 
     //public void operation() throws Exception{
     @Override
     public void run(){
+
+        System.out.println("[*] COM_SERVER thread is created.");
+
         try {
-            while (this.node.getOpen_port()) {
+            while (true) {
 
-               //System.out.println("Server of Node " + this.node.getNid() + " is ready.");
                 com_port = this.node.getPort().accept();
-                //client_id = this.rv.getSender();
 
-                node.setNm_msg_received();
+                System.out.println("[*] Accpt connection from: " + com_port.getLocalAddress() + ":" + com_port.getLocalPort());
 
                 ObjectOutputStream oos = new ObjectOutputStream(com_port.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(com_port.getInputStream());
