@@ -31,7 +31,7 @@ public class Node implements Serializable{
         this.nid = nid; // assign node ID
 
         try {
-            this.port = new ServerSocket( (int)this.nid + 5000);
+            this.port = new ServerSocket(InetPort.get_port(nid), 0, InetPort.get_addr(nid));
             System.out.println("[*] Server Port: " + ((int)this.nid + 5000) + " created.");
         } catch (IOException e) {
             e.printStackTrace();

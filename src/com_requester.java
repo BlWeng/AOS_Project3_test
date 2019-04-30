@@ -42,8 +42,8 @@ public class com_requester {
                 if (temp != this.node.getNid()) {
                     try {
 
-                        com_port = new Socket(InetAddress.getLocalHost(), 5000 + (int) temp);
-
+                        com_port = new Socket(InetPort.get_addr(pt), InetPort.get_port(pt));
+//                        com_port = new Socket(InetAddress.getLocalHost(), 5000 + (int) temp);
                         this.rv.setReceiver(temp);
 
                         ObjectOutputStream oos = new ObjectOutputStream(com_port.getOutputStream());
@@ -68,7 +68,8 @@ public class com_requester {
             try {
 
                 System.out.println("Sender: " + this.rv.getSender() + " Receiver: " + this.rv.getReceiver());
-                com_port = new Socket(InetAddress.getLocalHost(), 5000 + (int)this.rv.getReceiver());
+                com_port = new Socket(InetPort.get_addr(rv.getReceiver()), InetPort.get_port(rv.getReceiver()));
+//                com_port = new Socket(InetAddress.getLocalHost(), 5000 + (int)this.rv.getReceiver());
                 System.out.println("Client handler back in single option!!!!!");
 
                 ObjectOutputStream oos = new ObjectOutputStream(com_port.getOutputStream());

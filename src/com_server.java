@@ -25,6 +25,9 @@ public class com_server implements Runnable{
         System.out.println("[*] COM_SERVER thread is created.");
 
         try {
+
+            System.out.println("[*] Local port is: " + this.node.getPort().getLocalSocketAddress());
+
             while (true) {
 
                 com_port = this.node.getPort().accept();
