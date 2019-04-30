@@ -260,80 +260,9 @@ public class main {
             System.out.println(">> Current node is not in DS");
 
         node.setIsDistinguished(found);
-
-//        ArrayList<Character> temp = new ArrayList<>();
-//
-//        if( N == 3 ){
-//            System.out.println("Pre-Distinguish partition in N == 3.");
-//            found = false;
-//            temp = new ArrayList<>(P);
-//
-//            for(int n = 0 ; n < node.getBuffer().size(); n++){
-//                if ( node.getBuffer().get(n).getS_VN() == MaxVN)
-//                temp.removeAll(node.getBuffer().get(n).getS_DS());
-//            }
-//
-//            if(temp.isEmpty() || temp.size() > 1){
-//                System.out.println("Distinguish partition in N == 3");
-//                node.setIsDistinguished(true);
-//                found = true;
-//            }
-//
-//        }
-//        if(!found) {
-//            if (card_I > N / 2) {
-//                System.out.println("Distinguish partition in > N/2.");
-//                node.setIsDistinguished(true);
-//            }
-//
-//            if (card_I == N / 2) {
-//                System.out.println("Pre-Distinguish partition in == N/2.");
-//                found = false;
-//                temp = new ArrayList<>(I);
-//
-//                for (int k = 0; k < node.getBuffer().size(); k++) {
-//                    if (node.getBuffer().get(k).getS_VN() == MaxVN)
-//                        temp.removeAll(I_complete.get(k).getS_DS());
-//                }
-//
-//                if (temp.isEmpty() || temp.size() != P.size()) {
-//                    System.out.println("Distinguish partition in == N/2");
-//                    node.setIsDistinguished(true);
-//                }
-//
-//            }
-//        }
-//        else {
-//            System.out.println("Not in Distinguished Partition. ");
-//            node.setIsDistinguished(false);
-//            request_message dis_abort_msg = new request_message(node.getNid(), ' ', node.getLogical_time(),
-//                    node.getVN(), node.getSC(), node.getDS(),
-//                    request_message.action_options.ABORT, request_message.calling_option.broadcast_clique);
-//
-//            com_requester dis_abort = new com_requester(dis_abort_msg, subordinates, node);
-//
-//            dis_abort.send();
-//
-//        }
-
     }
 
     public static void Catch_up(Node node){
-
-//        int MaxVN = node.getVN();
-//        char node_to_catch_up = node.getNid();
-//        int N=0;
-//
-//        for (int i=0; i<node.getBuffer().size(); i++){
-//            int temp_vn = node.getBuffer().get(i).getS_VN();
-//            if (temp_vn > MaxVN){
-//                node_to_catch_up = node.getBuffer().get(i).getSender();
-//                MaxVN = temp_vn;
-//                N = node.getBuffer().get(i).getS_SC();
-//            }
-//        }
-//
-//        node.setN(N);
 
         int MaxVN = node.getMax();
         char node_to_catch_up = node.getNewestNode();
@@ -377,7 +306,6 @@ public class main {
                 ds.add(node.getLargestInP(node.getP()));
                 node.setDS(ds);
             }
-//                node.setDS( new ArrayList<>( List.of( node.getBuffer().get(0).getSender() ) ) );
         }
         System.out.println(">> Updated variables: [VN: " + node.getVN() + " SC: " + node.getSC() + " DS: " + node.getDS() + " ]");
 
