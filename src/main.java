@@ -40,13 +40,13 @@ public class main {
                             System.out.println("Selected iteration: " +iteration);
                             System.out.println("Selected partition: " + connection_set.toString());
 
-                            Hashtable quorum_set = new Hashtable();
+                            Hashtable quorum_set = new Hashtable<>();
                             for (char t_in : connection_set)
                                 quorum_set.put(t_in, false);
 
                             // Lock local manager
                             while (true){
-                                if (node.getLock() == false){
+                                if (!node.getLock()){
                                     node.setLock(true);
                                     break;
                                 }
@@ -75,10 +75,9 @@ public class main {
                                 // Get the most current copy
                                 Catch_up(node);
 
-                                while (true){
-                                    if (node.getIsCurrent()){
-                                        break;
-                                    }
+                                while (!node.getIsCurrent()){
+                                    Thread.sleep(500);
+                                    System.out.print(node.getIsCurrent());
                                 }
 
                                 // Update files
@@ -112,7 +111,7 @@ public class main {
         }catch (Exception e) {e.printStackTrace();}
     }
 
-    public static String partition_selected(Node node, int iteration){
+    private static String partition_selected(Node node, int iteration){
         String target= "";
         switch(iteration){
             case 0:
@@ -143,7 +142,7 @@ public class main {
         return target;
     }
 
-    public static void Is_Distinguished(Node node, ArrayList<Character> subordinates){
+    private static void Is_Distinguished(Node node, ArrayList<Character> subordinates){
 
 
         // Compute:
@@ -181,7 +180,7 @@ public class main {
         //   card_I: Number of nodes in I set
         int card_I=0;
         ArrayList<Character> P = new ArrayList<>();
-        ArrayList<request_message> I_complete = new ArrayList<request_message>();
+        ArrayList<request_message> I_complete = new ArrayList<>();
         ArrayList<Character> I = new ArrayList<>();
 
         P.add(node.getNid());
@@ -237,7 +236,7 @@ public class main {
 
                 if (I_complete.get(0).getS_DS().contains(c)){
                     count_contain_ds ++;
-                };
+                }
             }
 
             if (count_contain_ds >= 2){
@@ -262,7 +261,7 @@ public class main {
         node.setIsDistinguished(found);
     }
 
-    public static void Catch_up(Node node){
+    private static void Catch_up(Node node){
 
         int MaxVN = node.getMax();
         char node_to_catch_up = node.getNewestNode();
@@ -285,7 +284,7 @@ public class main {
     }
 
 
-    public static void Do_Updated(Node node, ArrayList<Character> subordinates){
+    private static void Do_Updated(Node node, ArrayList<Character> subordinates){
 
         System.out.println(">> Current variables: [VN: " + node.getVN() + " SC: " + node.getSC() + " DS: " + node.getDS() + " ]");
 
@@ -302,7 +301,7 @@ public class main {
             if(node.getSC() == 3)
                 node.setDS(node.getP());
             else {
-                ArrayList<Character> ds = new ArrayList<Character>();
+                ArrayList<Character> ds = new ArrayList<>();
                 ds.add(node.getLargestInP(node.getP()));
                 node.setDS(ds);
             }
@@ -320,22 +319,22 @@ public class main {
         System.out.println(">> Sent COMMIT to node: " + subordinates);
     }
 
-    public static void Make_Current(Node node, ArrayList<Character> subordinates){
-        if(!node.getIsDistinguished()){
-            request_message abort_msg = new request_message(node.getNid(), ' ', node.getLogical_time(),
-                    node.getVN(), node.getSC(), node.getDS(),
-                    request_message.action_options.ABORT, request_message.calling_option.broadcast_clique);
-
-            com_requester abort = new com_requester(abort_msg, subordinates, node);
-
-            abort.send();
-        }
-
-        else{
-            if(node.getVN() != node.getMax()) node.setVN(node.getMax());
-            Do_Updated(node, subordinates);
-
-        }
-    }
+//    public static void Make_Current(Node node, ArrayList<Character> subordinates){
+//        if(!node.getIsDistinguished()){
+//            request_message abort_msg = new request_message(node.getNid(), ' ', node.getLogical_time(),
+//                    node.getVN(), node.getSC(), node.getDS(),
+//                    request_message.action_options.ABORT, request_message.calling_option.broadcast_clique);
+//
+//            com_requester abort = new com_requester(abort_msg, subordinates, node);
+//
+//            abort.send();
+//        }
+//
+//        else{
+//            if(node.getVN() != node.getMax()) node.setVN(node.getMax());
+//            Do_Updated(node, subordinates);
+//
+//        }
+//    }
 
 }

@@ -89,6 +89,7 @@ public class com_handler implements Runnable, Serializable {
 
                     node.setVN(in.getS_VN());
                     node.setIsCurrent(true);
+                    System.out.println(">> Current file is the newest copy. (isCurrent: " + node.getIsCurrent() + ")");
                 }
 
                 // On receiving CATCH_UP
