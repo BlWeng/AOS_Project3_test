@@ -84,6 +84,9 @@ public class main {
                                 Do_Updated(node, connection_set);
 
                             } else {
+
+                                System.out.println(">> Aborted. (Current status: [VN: " + node.getVN() + " SC: " + node.getSC() + " DS: " + node.getDS() + " )");
+
                                 // Release local manager lock
                                 node.setLock(false);
 
