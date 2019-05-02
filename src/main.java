@@ -7,6 +7,7 @@ public class main {
 
         // Init Node
         Node node = new Node(args[0].charAt(0));
+        int iteration;
 
         try {
 
@@ -22,12 +23,17 @@ public class main {
 
                         // Send Request
                         if (cmd.next().equals("y")) {
-
+/*
                             // Get Set of nodes to send
                             System.out.println("Please enter desire level for partition testing. (0-3)");
                             Scanner p_cmd = new Scanner(System.in).useDelimiter("\\s");
 
                             int iteration = p_cmd.nextInt();
+*/
+                            iteration = node.getRequest_time() / 2 % 4;
+
+                            node.setRequest_time(node.getRequest_time()+1);
+
                             String selected_set = partition_selected(node, iteration);
                             ArrayList<Character> connection_set = new ArrayList<>();
 
@@ -97,7 +103,8 @@ public class main {
                                 com_requester abort_begin = new com_requester(abort_msg, connection_set, node);
                                 abort_begin.send();
                             }
-
+                            System.out.println(">> Updated variables: [VN: " + node.getVN() +" SC: " + node.getSC() + " DS: " + node.getDS() + "]");
+                            //node.setRequest_time(node.getRequest_time()+1);
                             node.getBuffer().clear();
 
                     }
@@ -112,6 +119,7 @@ public class main {
             }
 
         }catch (Exception e) {e.printStackTrace();}
+
     }
 
     private static String partition_selected(Node node, int iteration){

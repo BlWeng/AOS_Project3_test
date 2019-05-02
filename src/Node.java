@@ -24,6 +24,7 @@ public class Node implements Serializable{
     private int N;
     private int Max;
     private char newestNode;
+    private int request_time;
 
 
     // Constructor of Node
@@ -87,7 +88,7 @@ public class Node implements Serializable{
     public boolean getIsCurrent() {return isCurrent;}
     public int getN() {return N;}
     public char getNewestNode() {return newestNode;}
-
+    public int getRequest_time() {return request_time;}
 
     // Set Functions
     public void setLogical_time_unit_increase() {logical_time++;}
@@ -114,4 +115,5 @@ public class Node implements Serializable{
     public void setIsCurrent(boolean dv) {isCurrent=dv;}
     public void setN(int dv) {N = dv;}
     public void setNewestNode(char dv) {newestNode = dv;}
+    public void setRequest_time(int dv) { request_time = dv; }
 }

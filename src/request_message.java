@@ -12,6 +12,7 @@ public class request_message implements Serializable {
         CATCH_UP_REPLY,
         COMMIT,
         ABORT,
+        REQUEST_TIME_UPDATE,
 
         grant,
         release,

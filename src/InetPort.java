@@ -23,6 +23,9 @@ public class InetPort {
             try {
                 hash_table.put(cur_c,
                         new InetSocketAddress(InetAddress.getByName("10.176.69." + (32 + i)), 5000 + (int)cur_c));
+                //hash_table.put(cur_c,
+                       //new InetSocketAddress(InetAddress.getLocalHost(), 5000 + (int)cur_c));
+
             } catch (Exception e){
                 e.printStackTrace();
             }

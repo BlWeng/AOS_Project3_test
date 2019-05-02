@@ -77,6 +77,7 @@ public class com_handler implements Runnable, Serializable {
                     com_requester reply = new com_requester(reply_msg, node);
                     reply.send();
                     System.out.println(">> Sent VOTE_REQUEST_REPLY to node: " + node.getNid());
+                    node.setRequest_time(node.getRequest_time()+1);
                 }
 
                 // On receiving VOTE_REQUEST_REPLY
